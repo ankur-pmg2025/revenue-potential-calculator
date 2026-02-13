@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Revenue Potential Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg"></div>
+
+    <header class="hero">
+      <div class="wrap">
+        <h1>Calculate Your <span>Revenue Potential</span></h1>
+        <p>Discover how much revenue your practice is losing from missed calls and inquiries — and how AI can help you capture it.</p>
+      </div>
+    </header>
+
+    <main class="wrap grid">
+      <!-- LEFT: Current daily reality -->
+      <section class="panel">
+        <div class="panel-title">
+          <h2>Your Current Daily Reality</h2>
+          <span class="pill">Live</span>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <div class="card-top">
+              <div class="icon">☀️</div>
+              <div class="card-metric">
+                <input id="missedDay" type="number" min="0" step="1" value="12" />
+                <div class="label">Missed during day <span class="muted">per weekday</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <div class="icon">🌙</div>
+              <div class="card-metric">
+                <input id="missedAfterHours" type="number" min="0" step="1" value="2" />
+                <div class="label">Missed after hours <span class="muted">per weeknight</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <div class="icon">📅</div>
+              <div class="card-metric">
+                <input id="missedWeekend" type="number" min="0" step="1" value="2" />
+                <div class="label">Missed on weekends <span class="muted">per weekend (Sat+Sun)</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <div class="icon">🧾</div>
+              <div class="card-metric">
+                <input id="dailyWebLeads" type="number" min="0" step="1" value="15" />
+                <div class="label">Daily web leads <span class="muted">per weekday</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card wide">
+            <div class="card-top">
+              <div class="icon money">$</div>
+              <div class="card-metric">
+                <input id="avgPatientValue" type="number" min="0" step="1" value="499" />
+                <div class="label">Avg patient value <span class="muted">in dollars</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-row">
+          <div class="summary-item">
+            <span class="muted">Monthly missed calls:</span>
+            <strong id="monthlyMissedCalls">—</strong>
+          </div>
+          <div class="summary-item">
+            <span class="muted">Monthly web leads:</span>
+            <strong id="monthlyWebLeads">—</strong>
+          </div>
+          <div class="summary-note muted">
+            Based on <strong>20 weekdays</strong> + <strong>4 weekends</strong> per month
+          </div>
+        </div>
+      </section>
+
+      <!-- LEFT: AI assumptions -->
+      <section class="panel">
+        <div class="panel-title">
+          <h2>AI Assumptions</h2>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h3>Call quality factors</h3>
+            <div class="muted">Select factors that reduce potential booking rate</div>
+          </div>
+
+          <div class="rate">
+            <div class="rate-line">
+              <div>
+                <div class="muted">Effective booking rate:</div>
+                <div class="rate-big"><span id="effectiveBookingRateLabel">—</span></div>
+              </div>
+              <div class="muted right">Base booking rate: <strong id="baseBookingRateLabel">—</strong></div>
+            </div>
+
+            <input id="baseBookingRate" type="range" min="0" max="100" value="70" />
+          </div>
+
+          <div class="checks">
+            <label class="check">
+              <input id="factorSpam" type="checkbox" />
+              <span>We get spam calls</span>
+              <span class="neg">-18%</span>
+            </label>
+
+            <label class="check">
+              <input id="factorCallback" type="checkbox" />
+              <span>Customers calling back</span>
+              <span class="neg">-20%</span>
+            </label>
+
+            <label class="check">
+              <input id="factorPrice" type="checkbox" />
+              <span>Price shoppers</span>
+              <span class="neg">-10%</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h3>Industry averages used</h3>
+          </div>
+
+          <div class="two-col">
+            <label class="field">
+              <span class="muted">Chatbot lead increase</span>
+              <div class="inline">
+                <input id="chatbotLeadIncrease" type="number" min="0" max="500" step="1" value="15" />
+                <span class="suffix">%</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span class="muted">Web lead conversion rate</span>
+              <div class="inline">
+                <input id="webLeadConversionRate" type="number" min="0" max="100" step="1" value="25" />
+                <span class="suffix">%</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Results -->
+      <section class="panel span2">
+        <div class="impact">
+          <div class="impact-title muted">YOUR ANNUAL AI REVENUE IMPACT</div>
+          <div class="impact-value" id="annualImpact">$—</div>
+          <div class="impact-sub" id="monthlyImpact">$— / month</div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel inner">
+            <div class="panel-title">
+              <h2>Revenue Breakdown</h2>
+            </div>
+
+            <div class="breakdown">
+              <div class="break">
+                <div class="break-left">
+                  <div class="bicon">📞</div>
+                  <div>
+                    <div class="muted">Bookings from Missed Calls</div>
+                    <div class="bbig" id="bookingsFromMissedCalls">—</div>
+                  </div>
+                </div>
+                <div class="break-right">
+                  <div class="muted">Monthly</div>
+                  <div class="bmoney" id="missedCallRevenueMonthly">$—</div>
+                </div>
+              </div>
+
+              <div class="break">
+                <div class="break-left">
+                  <div class="bicon">🤖</div>
+                  <div>
+                    <div class="muted">New Leads from Chatbot</div>
+                    <div class="bbig" id="newLeadsFromChatbot">—</div>
+                  </div>
+                </div>
+                <div class="break-right">
+                  <div class="muted">Monthly</div>
+                  <div class="bmoney" id="chatbotRevenueMonthly">$—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel inner">
+            <div class="panel-title">
+              <h2>How This is Calculated</h2>
+            </div>
+
+            <div class="how">
+              <div class="howbox">
+                <div class="howtitle">Missed Call Revenue</div>
+                <div class="howtext" id="howMissedCalls">—</div>
+              </div>
+
+              <div class="howbox">
+                <div class="howtitle">Chatbot Lead Revenue</div>
+                <div class="howtext" id="howChatbot">—</div>
+              </div>
+
+              <div class="howbox accent">
+                <div class="howtitle">Total Annual Impact</div>
+                <div class="howtext" id="howTotal">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <footer class="wrap footer muted">
+      Tip: This is a static site — perfect for Netlify. Customize copy, colors, and assumptions in minutes.
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
