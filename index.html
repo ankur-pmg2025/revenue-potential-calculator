@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Revenue Potential Calculator</title>
+    <title>Revenue Potential Calculator (V2)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -15,12 +15,21 @@
     <header class="hero">
       <div class="wrap">
         <h1>Calculate Your <span>Revenue Potential</span></h1>
-        <p>Discover how much revenue your practice is losing from missed calls and inquiries — and how AI can help you capture it.</p>
+        <p>
+          Estimate revenue you’re losing from missed calls and inquiries — and what AI can recapture.
+          Use the share link to save/compare scenarios.
+        </p>
+
+        <div class="hero-actions">
+          <button id="btnCopyLink" class="btn primary">Copy Share Link</button>
+          <button id="btnReset" class="btn">Reset to Defaults</button>
+          <div id="copyStatus" class="status muted" aria-live="polite"></div>
+        </div>
       </div>
     </header>
 
     <main class="wrap grid">
-      <!-- LEFT: Current daily reality -->
+      <!-- LEFT COLUMN -->
       <section class="panel">
         <div class="panel-title">
           <h2>Your Current Daily Reality</h2>
@@ -63,7 +72,7 @@
               <div class="icon">🧾</div>
               <div class="card-metric">
                 <input id="dailyWebLeads" type="number" min="0" step="1" value="15" />
-                <div class="label">Daily web leads <span class="muted">per weekday</span></div>
+                <div class="label">Daily leads (total) <span class="muted">per weekday</span></div>
               </div>
             </div>
           </div>
@@ -73,7 +82,17 @@
               <div class="icon money">$</div>
               <div class="card-metric">
                 <input id="avgPatientValue" type="number" min="0" step="1" value="499" />
-                <div class="label">Avg patient value <span class="muted">in dollars</span></div>
+                <div class="label">First-visit value <span class="muted">in dollars</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card wide">
+            <div class="card-top">
+              <div class="icon money">∞</div>
+              <div class="card-metric">
+                <input id="ltvPerPatient" type="number" min="0" step="1" value="2500" />
+                <div class="label">Patient LTV <span class="muted">in dollars</span></div>
               </div>
             </div>
           </div>
@@ -85,16 +104,40 @@
             <strong id="monthlyMissedCalls">—</strong>
           </div>
           <div class="summary-item">
-            <span class="muted">Monthly web leads:</span>
-            <strong id="monthlyWebLeads">—</strong>
+            <span class="muted">Monthly total leads:</span>
+            <strong id="monthlyTotalLeads">—</strong>
+          </div>
+          <div class="summary-item">
+            <span class="muted">Monthly lead split (counts):</span>
+            <strong id="monthlyLeadSplit">—</strong>
           </div>
           <div class="summary-note muted">
-            Based on <strong>20 weekdays</strong> + <strong>4 weekends</strong> per month
+            Assumptions are editable below (weekdays/weekends per month).
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h3>Month assumptions</h3>
+            <div class="muted">Adjust for your practice calendar</div>
+          </div>
+          <div class="two-col">
+            <label class="field">
+              <span class="muted">Weekdays per month</span>
+              <div class="inline">
+                <input id="weekdaysPerMonth" type="number" min="0" max="31" step="1" value="20" />
+              </div>
+            </label>
+            <label class="field">
+              <span class="muted">Weekends per month</span>
+              <div class="inline">
+                <input id="weekendsPerMonth" type="number" min="0" max="10" step="1" value="4" />
+              </div>
+            </label>
           </div>
         </div>
       </section>
 
-      <!-- LEFT: AI assumptions -->
       <section class="panel">
         <div class="panel-title">
           <h2>AI Assumptions</h2>
@@ -102,8 +145,8 @@
 
         <div class="block">
           <div class="block-head">
-            <h3>Call quality factors</h3>
-            <div class="muted">Select factors that reduce potential booking rate</div>
+            <h3>Booking rate from missed calls</h3>
+            <div class="muted">Base rate reduced by selected call quality factors</div>
           </div>
 
           <div class="rate">
@@ -114,7 +157,6 @@
               </div>
               <div class="muted right">Base booking rate: <strong id="baseBookingRateLabel">—</strong></div>
             </div>
-
             <input id="baseBookingRate" type="range" min="0" max="100" value="70" />
           </div>
 
@@ -124,13 +166,11 @@
               <span>We get spam calls</span>
               <span class="neg">-18%</span>
             </label>
-
             <label class="check">
               <input id="factorCallback" type="checkbox" />
               <span>Customers calling back</span>
               <span class="neg">-20%</span>
             </label>
-
             <label class="check">
               <input id="factorPrice" type="checkbox" />
               <span>Price shoppers</span>
@@ -141,30 +181,75 @@
 
         <div class="block">
           <div class="block-head">
-            <h3>Industry averages used</h3>
+            <h3>Revenue model</h3>
+            <div class="muted">Choose whether to value patients by first visit or lifetime value</div>
           </div>
 
-          <div class="two-col">
-            <label class="field">
-              <span class="muted">Chatbot lead increase</span>
-              <div class="inline">
-                <input id="chatbotLeadIncrease" type="number" min="0" max="500" step="1" value="15" />
-                <span class="suffix">%</span>
-              </div>
+          <div class="seg">
+            <label class="segopt">
+              <input type="radio" name="revenueModel" value="first_visit" checked />
+              <span>First Visit</span>
             </label>
-
-            <label class="field">
-              <span class="muted">Web lead conversion rate</span>
-              <div class="inline">
-                <input id="webLeadConversionRate" type="number" min="0" max="100" step="1" value="25" />
-                <span class="suffix">%</span>
-              </div>
+            <label class="segopt">
+              <input type="radio" name="revenueModel" value="ltv" />
+              <span>LTV</span>
             </label>
           </div>
         </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h3>Lead sources + AI uplift</h3>
+            <div class="muted">Split your weekday leads across sources, then apply uplift + conversion per source</div>
+          </div>
+
+          <div class="leadgrid">
+            <div class="leadhead muted">
+              <div>Source</div>
+              <div class="right">Share (%)</div>
+              <div class="right">AI uplift (%)</div>
+              <div class="right">Conversion (%)</div>
+            </div>
+
+            <div class="leadrow">
+              <div class="leadname">Website</div>
+              <div class="right"><input id="shareWeb" type="number" min="0" max="100" step="1" value="60" /></div>
+              <div class="right"><input id="upliftWeb" type="number" min="0" max="500" step="1" value="15" /></div>
+              <div class="right"><input id="convWeb" type="number" min="0" max="100" step="1" value="25" /></div>
+            </div>
+
+            <div class="leadrow">
+              <div class="leadname">Google Business</div>
+              <div class="right"><input id="shareGmb" type="number" min="0" max="100" step="1" value="25" /></div>
+              <div class="right"><input id="upliftGmb" type="number" min="0" max="500" step="1" value="12" /></div>
+              <div class="right"><input id="convGmb" type="number" min="0" max="100" step="1" value="20" /></div>
+            </div>
+
+            <div class="leadrow">
+              <div class="leadname">Ads</div>
+              <div class="right"><input id="shareAds" type="number" min="0" max="100" step="1" value="15" /></div>
+              <div class="right"><input id="upliftAds" type="number" min="0" max="500" step="1" value="18" /></div>
+              <div class="right"><input id="convAds" type="number" min="0" max="100" step="1" value="18" /></div>
+            </div>
+
+            <div class="leadnote muted" id="leadSplitNote">—</div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h3>Permalink options</h3>
+            <div class="muted">A share link stores all inputs in the URL so scenarios are reproducible</div>
+          </div>
+          <label class="check tight">
+            <input id="autoUpdateUrl" type="checkbox" checked />
+            <span>Auto-update URL as I type</span>
+            <span class="muted"></span>
+          </label>
+        </div>
       </section>
 
-      <!-- RIGHT: Results -->
+      <!-- RIGHT COLUMN: RESULTS -->
       <section class="panel span2">
         <div class="impact">
           <div class="impact-title muted">YOUR ANNUAL AI REVENUE IMPACT</div>
@@ -197,13 +282,27 @@
                 <div class="break-left">
                   <div class="bicon">🤖</div>
                   <div>
-                    <div class="muted">New Leads from Chatbot</div>
-                    <div class="bbig" id="newLeadsFromChatbot">—</div>
+                    <div class="muted">New Patients from AI Uplift</div>
+                    <div class="bbig" id="newPatientsFromAi">—</div>
                   </div>
                 </div>
                 <div class="break-right">
                   <div class="muted">Monthly</div>
-                  <div class="bmoney" id="chatbotRevenueMonthly">$—</div>
+                  <div class="bmoney" id="aiRevenueMonthly">$—</div>
+                </div>
+              </div>
+
+              <div class="break">
+                <div class="break-left">
+                  <div class="bicon">📊</div>
+                  <div>
+                    <div class="muted">AI Uplift by Source (Monthly)</div>
+                    <div class="splitlines" id="aiBySourceLines">—</div>
+                  </div>
+                </div>
+                <div class="break-right">
+                  <div class="muted">Value model</div>
+                  <div class="bmoney" id="valueModelLabel">—</div>
                 </div>
               </div>
             </div>
@@ -217,17 +316,17 @@
             <div class="how">
               <div class="howbox">
                 <div class="howtitle">Missed Call Revenue</div>
-                <div class="howtext" id="howMissedCalls">—</div>
+                <pre class="howpre" id="howMissedCalls">—</pre>
               </div>
 
               <div class="howbox">
-                <div class="howtitle">Chatbot Lead Revenue</div>
-                <div class="howtext" id="howChatbot">—</div>
+                <div class="howtitle">AI Lead Uplift Revenue</div>
+                <pre class="howpre" id="howAiLeads">—</pre>
               </div>
 
               <div class="howbox accent">
                 <div class="howtitle">Total Annual Impact</div>
-                <div class="howtext" id="howTotal">—</div>
+                <pre class="howpre" id="howTotal">—</pre>
               </div>
             </div>
           </div>
@@ -237,7 +336,7 @@
     </main>
 
     <footer class="wrap footer muted">
-      Tip: This is a static site — perfect for Netlify. Customize copy, colors, and assumptions in minutes.
+      V2 features: shareable permalink, editable month assumptions, revenue model toggle (First Visit vs LTV), lead source split with uplift + conversion per source.
     </footer>
 
     <script src="./app.js"></script>
